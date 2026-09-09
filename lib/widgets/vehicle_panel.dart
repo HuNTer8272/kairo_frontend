@@ -39,13 +39,13 @@ class VehiclePanel extends StatelessWidget {
               AnimatedPositioned(
                 duration: const Duration(milliseconds: 520),
                 curve: Curves.easeInOutCubic,
-                left: compact ? w * 0.08 : w * 0.21,
-                right: compact ? w * 0.05 : w * 0.14,
-                top: compact ? h * 0.24 : h * 0.26,
-                height: compact ? h * 0.43 : h * 0.48,
+                left: compact ? w * 0.08 : w * 0.10,
+                right: compact ? w * 0.05 : w * 0.05,
+                top: compact ? h * 0.24 : h * 0.16,
+                height: compact ? h * 0.43 : h * 0.62,
                 child: Hero(
                   tag: 'vehicle',
-                  child: const VehicleModelView(),
+                  child: VehicleModelView(compact: compact),
                 ),
               ),
               if (!compact) ...[

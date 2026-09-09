@@ -2,34 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 
 class VehicleModelView extends StatelessWidget {
-  const VehicleModelView({super.key});
+  const VehicleModelView({super.key, required this.compact});
+
+  final bool compact;
 
   static const modelPath =
-      'assets/car_models/2025_byd_seal_5_dm-i_chazor_king_destroyer_05.glb';
+      'assets/car_models/black_sedan.glb';
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        Center(
-          child: Icon(
-            Icons.directions_car_filled_rounded,
-            size: 220,
-            color: scheme.onSurface.withValues(alpha: .18),
-          ),
-        ),
-        ModelViewer(
-          src: modelPath,
-          alt: '2025 BYD Seal electric sedan',
-          cameraControls: true,
-          disableZoom: true,
-          autoRotate: false,
-          backgroundColor: Colors.transparent,
-        ),
-      ],
+    return ModelViewer(
+      src: modelPath,
+      alt: 'Black electric sedan',
+      cameraControls: true,
+      disableZoom: true,
+      autoRotate: false,
+      cameraOrbit: compact ? '0deg 75deg 100%' : '0deg 75deg 82%',
+      fieldOfView: compact ? 'auto' : '38deg',
+      loading: Loading.eager,
+      reveal: Reveal.auto,
+      shadowIntensity: 0.35,
+      backgroundColor: Colors.transparent,
     );
   }
 }

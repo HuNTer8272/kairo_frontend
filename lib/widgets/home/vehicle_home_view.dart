@@ -36,7 +36,7 @@ class VehicleHomeView extends StatelessWidget {
                 right: settingsOpen ? w * .05 : w * .13,
                 top: settingsOpen ? h * .23 : h * .25,
                 height: settingsOpen ? h * .45 : h * .49,
-                child: const VehicleModelView(),
+                child: VehicleModelView(compact: settingsOpen),
               ),
               if (!settingsOpen) ...[
                 Positioned(
