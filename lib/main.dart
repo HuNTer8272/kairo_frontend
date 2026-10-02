@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'screens/vehicle_dashboard.dart';
+import 'theme/app_theme.dart';
 
 void main() {
   runApp(const VehicleTabletApp());
@@ -23,25 +24,8 @@ class _VehicleTabletAppState extends State<VehicleTabletApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Vehicle Tablet UI',
-      theme: ThemeData(
-        useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xFFF4F4F2),
-        fontFamily: 'Roboto',
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF087E8B),
-          brightness: Brightness.light,
-        ),
-      ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xFF111416),
-        fontFamily: 'Roboto',
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF55D6BE),
-          brightness: Brightness.dark,
-          surface: const Color(0xFF1A1F21),
-        ),
-      ),
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
       themeMode: themeMode,
       home: VehicleDashboard(
         isDarkMode: themeMode == ThemeMode.dark,

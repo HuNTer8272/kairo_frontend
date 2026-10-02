@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../data/dock_items.dart';
 import '../data/settings_data.dart';
+import '../services/bluetooth/bluetooth_service.dart';
+import '../services/spotify/spotify_service.dart';
 import '../widgets/bottom_dock.dart';
 import '../widgets/settings_panel.dart';
 import '../widgets/top_bar.dart';
@@ -44,7 +46,26 @@ class _VehicleDashboardState extends State<VehicleDashboard> {
   final List<int> pageHistory = [0];
   int historyIndex = 0;
 
+  final SpotifyService _spotify = SpotifyService();
+
+  /// Owned here so BLE connections survive leaving the Bluetooth page.
+  final BluetoothService _bluetooth = BluetoothService();
+
   int get _appsIndex => kDockItems.length - 1;
+  int get _musicIndex => kDockItems.indexWhere((item) => item.label == 'Music');
+
+  @override
+  void initState() {
+    super.initState();
+    _spotify.init();
+  }
+
+  @override
+  void dispose() {
+    _spotify.dispose();
+    _bluetooth.dispose();
+    super.dispose();
+  }
 
   void _onDockSelected(int index) {
     setState(() {
@@ -88,9 +109,9 @@ class _VehicleDashboardState extends State<VehicleDashboard> {
       // case 2:
       //   return const VoiceScreen();
       case 2:
-        return const BluetoothScreen();
+        return BluetoothScreen(bluetooth: _bluetooth);
       case 3:
-        return const MusicScreen();
+        return MusicScreen(spotify: _spotify);
       // case 5:
       //   return const AssistantScreen();
       // case 6:
@@ -116,6 +137,10 @@ class _VehicleDashboardState extends State<VehicleDashboard> {
             compact: settingsOpen,
             onOpenSettings: () => setState(() => settingsOpen = true),
             onNavigate: () => setState(() => navigationOpen = true),
+            spotify: _spotify,
+            // Same path as the dock's music icon, so the dock highlight and
+            // back/forward history stay consistent.
+            onOpenMusic: () => _onDockSelected(_musicIndex),
           ),
         ),
         AnimatedPositioned(
@@ -138,9 +163,40 @@ class _VehicleDashboardState extends State<VehicleDashboard> {
     );
   }
 
+  /// Identifies which page the body shows. The car view and the settings
+  /// sidebar share one key so opening settings keeps its own slide
+  /// animation instead of triggering a page transition.
+  String get _bodyKey {
+    if (navigationOpen) return 'navigation';
+    if (selectedDockItem == 0 || selectedDockItem == _appsIndex) {
+      return 'vehicle';
+    }
+    return 'page-$selectedDockItem';
+  }
+
+  /// Fade + short horizontal slide + slight scale between body pages.
+  Widget _pageTransition(Widget child, Animation<double> animation) {
+    final curved =
+        CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
+    return FadeTransition(
+      opacity: curved,
+      child: SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0.04, 0),
+          end: Offset.zero,
+        ).animate(curved),
+        child: ScaleTransition(
+          scale: Tween<double>(begin: 0.985, end: 1).animate(curved),
+          child: child,
+        ),
+      ),
+    );
+  }
+
   Widget _buildBody(double width) {
     if (navigationOpen) {
-      return NavigationScreen(onClose: () => setState(() => navigationOpen = false));
+      return NavigationScreen(
+          onClose: () => setState(() => navigationOpen = false));
     }
     if (selectedDockItem == 0 || selectedDockItem == _appsIndex) {
       return _buildVehicleAndSettings(width);
@@ -164,7 +220,19 @@ class _VehicleDashboardState extends State<VehicleDashboard> {
                 Positioned.fill(
                   bottom: dockHeight,
                   child: ClipRect(
-                    child: _buildBody(width),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 320),
+                      reverseDuration: const Duration(milliseconds: 260),
+                      transitionBuilder: _pageTransition,
+                      layoutBuilder: (current, previous) => Stack(
+                        fit: StackFit.expand,
+                        children: [...previous, if (current != null) current],
+                      ),
+                      child: KeyedSubtree(
+                        key: ValueKey(_bodyKey),
+                        child: _buildBody(width),
+                      ),
+                    ),
                   ),
                 ),
                 Positioned(

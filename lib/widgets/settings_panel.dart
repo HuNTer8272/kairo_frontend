@@ -47,6 +47,12 @@ class SettingsPanel extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide.none,
                       ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: scheme.primary.withValues(alpha: 0.55),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -73,12 +79,22 @@ class SettingsPanel extends StatelessWidget {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 4),
                         child: Material(
-                            color: selected
+                          color: selected
                               ? scheme.secondaryContainer
                               : Colors.transparent,
-                          borderRadius: BorderRadius.circular(7),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(7),
+                            side: selected
+                                ? BorderSide(
+                                    color:
+                                        scheme.primary.withValues(alpha: 0.28),
+                                  )
+                                : BorderSide.none,
+                          ),
                           child: ListTile(
                             dense: true,
+                            selected: selected,
+                            selectedColor: scheme.onSecondaryContainer,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(7),
                             ),

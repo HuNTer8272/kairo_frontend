@@ -2,6 +2,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../services/spotify/spotify_service.dart';
+import '../theme/app_colors.dart';
+import 'media/spotify_mini_player.dart';
 import 'vehicle_model_view.dart';
 
 /// The left-hand "car view" — vehicle render, status icons, and either the
@@ -13,11 +16,15 @@ class VehiclePanel extends StatelessWidget {
     required this.compact,
     required this.onOpenSettings,
     required this.onNavigate,
+    required this.spotify,
+    required this.onOpenMusic,
   });
 
   final bool compact;
   final VoidCallback onOpenSettings;
   final VoidCallback onNavigate;
+  final SpotifyService spotify;
+  final VoidCallback onOpenMusic;
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +96,11 @@ class VehiclePanel extends StatelessWidget {
                   left: w * 0.29,
                   right: w * 0.18,
                   bottom: h * 0.03,
-                  child: _HomeCards(onNavigate: onNavigate),
+                  child: _HomeCards(
+                    onNavigate: onNavigate,
+                    spotify: spotify,
+                    onOpenMusic: onOpenMusic,
+                  ),
                 ),
               ] else ...[
                 Positioned(
@@ -111,9 +122,15 @@ class VehiclePanel extends StatelessWidget {
                       width: 54,
                       height: 54,
                       decoration: BoxDecoration(
-                        color: scheme.surfaceContainerHighest.withValues(alpha: 0.92),
+                        color: scheme.surfaceContainerHighest
+                            .withValues(alpha: 0.92),
                         borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: scheme.outlineVariant),
+                        // Accent outline while the settings panel is open.
+                        border: Border.all(
+                          color: compact
+                              ? scheme.primary.withValues(alpha: 0.55)
+                              : scheme.outlineVariant,
+                        ),
                         boxShadow: const [
                           BoxShadow(
                             blurRadius: 16,
@@ -122,7 +139,10 @@ class VehiclePanel extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.directions_car_filled_rounded),
+                      child: Icon(
+                        Icons.directions_car_filled_rounded,
+                        color: compact ? scheme.primary : null,
+                      ),
                     ),
                   ),
                 ),
@@ -142,19 +162,20 @@ class _VerticalStatusBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Column(
       children: [
-        const Icon(Icons.light_mode_rounded, color: Color(0xFF40B987)),
+        Icon(Icons.light_mode_rounded, color: scheme.primary),
         const SizedBox(height: 18),
         Icon(
           compact ? Icons.airline_seat_recline_normal : Icons.lightbulb_outline,
           color: const Color(0xFF929699),
         ),
         // const SizedBox(height: 18),
-        // const Icon(Icons.light_mode_rounded, color: Color(0xFF40B987)),
+        // Icon(Icons.light_mode_rounded, color: scheme.primary),
         const SizedBox(height: 18),
         const Icon(Icons.airline_seat_recline_normal_rounded,
-            color: Color(0xFFCE293A)),
+            color: AppColors.alert),
       ],
     );
   }
@@ -198,9 +219,15 @@ class _VehicleActionLabel extends StatelessWidget {
 }
 
 class _HomeCards extends StatelessWidget {
-  const _HomeCards({required this.onNavigate});
+  const _HomeCards({
+    required this.onNavigate,
+    required this.spotify,
+    required this.onOpenMusic,
+  });
 
   final VoidCallback onNavigate;
+  final SpotifyService spotify;
+  final VoidCallback onOpenMusic;
 
   @override
   Widget build(BuildContext context) {
@@ -209,51 +236,7 @@ class _HomeCards extends StatelessWidget {
         Expanded(
           flex: 6,
           child: _GlassCard(
-            child: Column(
-              children: [
-                const ListTile(
-                  dense: true,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                  leading: CircleAvatar(
-                    backgroundColor: Color(0xFF2E2B32),
-                    child: Icon(Icons.music_note_rounded, color: Colors.white),
-                  ),
-                  title: Text(
-                    'Vampire',
-                    style: TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                  subtitle: Text('Olivia Rodrigo'),
-                ),
-                const Divider(height: 1),
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      IconButton(
-                        onPressed: null,
-                        icon: Icon(Icons.skip_previous_rounded),
-                      ),
-                      IconButton(
-                        onPressed: null,
-                        icon: Icon(Icons.play_arrow_rounded),
-                      ),
-                      IconButton(
-                        onPressed: null,
-                        icon: Icon(Icons.skip_next_rounded),
-                      ),
-                      IconButton(
-                        onPressed: null,
-                        icon: Icon(Icons.tune_rounded),
-                      ),
-                      IconButton(
-                        onPressed: null,
-                        icon: Icon(Icons.search_rounded),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+            child: SpotifyMiniPlayer(spotify: spotify, onOpen: onOpenMusic),
           ),
         ),
         const SizedBox(width: 12),
@@ -366,4 +349,3 @@ class _TyrePressureCard extends StatelessWidget {
     );
   }
 }
-

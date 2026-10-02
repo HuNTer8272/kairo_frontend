@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../data/dock_items.dart';
+import '../theme/app_colors.dart';
 
 /// The black dock pinned to the bottom of the screen. Purely presentational —
 /// [VehicleDashboard] decides what happens when an icon is tapped.
@@ -25,7 +26,7 @@ class BottomDock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFF111111),
+      color: AppColors.dockBackground,
       child: Row(
         children: [
           const SizedBox(width: 22),
@@ -33,8 +34,8 @@ class BottomDock extends StatelessWidget {
             tooltip: 'Back',
             onPressed: canGoBack ? onBack : null,
             icon: const Icon(Icons.chevron_left_rounded),
-            color: Colors.white70,
-            disabledColor: Colors.white24,
+            color: AppColors.dockIcon,
+            disabledColor: AppColors.dockIconDisabled,
           ),
           const SizedBox(width: 5),
           const Text(
@@ -52,11 +53,12 @@ class BottomDock extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: IconButton(
                 onPressed: () => onSelected(index),
+                style: IconButton.styleFrom(
+                  backgroundColor: selected ? AppColors.dockSelectedFill : null,
+                ),
                 icon: Icon(
                   kDockItems[index].icon,
-                  color: selected
-                      ? const Color(0xFF4AD27C)
-                      : Colors.white70,
+                  color: selected ? AppColors.accent : AppColors.dockIcon,
                   size: 25,
                 ),
               ),
@@ -76,11 +78,11 @@ class BottomDock extends StatelessWidget {
             tooltip: 'Forward',
             onPressed: canGoForward ? onForward : null,
             icon: const Icon(Icons.chevron_right_rounded),
-            color: Colors.white70,
-            disabledColor: Colors.white24,
+            color: AppColors.dockIcon,
+            disabledColor: AppColors.dockIconDisabled,
           ),
           const SizedBox(width: 30),
-          const Icon(Icons.volume_up_rounded, color: Colors.white70),
+          const Icon(Icons.volume_up_rounded, color: AppColors.dockIcon),
           const SizedBox(width: 28),
         ],
       ),

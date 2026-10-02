@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_colors.dart';
 import '../../models/nav_item.dart';
 
 class BottomDock extends StatelessWidget {
@@ -22,9 +23,12 @@ class BottomDock extends StatelessWidget {
           const SizedBox(width: 22),
           const Icon(Icons.chevron_left_rounded, color: Colors.white54),
           const SizedBox(width: 5),
-          const Text('22°', style: TextStyle(
-            color: Colors.white, fontSize: 26, fontWeight: FontWeight.w400,
-          )),
+          const Text('22°',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 26,
+                fontWeight: FontWeight.w400,
+              )),
           const Spacer(),
           ...List.generate(items.length, (index) {
             final selected = index == selectedIndex;
@@ -36,9 +40,7 @@ class BottomDock extends StatelessWidget {
                   onPressed: () => onSelected(index),
                   icon: Icon(
                     items[index].icon,
-                    color: selected
-                        ? const Color(0xFF4AD27C)
-                        : Colors.white70,
+                    color: selected ? AppColors.accent : Colors.white70,
                     size: 25,
                   ),
                 ),
@@ -46,9 +48,12 @@ class BottomDock extends StatelessWidget {
             );
           }),
           const Spacer(),
-          const Text('22°', style: TextStyle(
-            color: Colors.white, fontSize: 26, fontWeight: FontWeight.w400,
-          )),
+          const Text('22°',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 26,
+                fontWeight: FontWeight.w400,
+              )),
           const SizedBox(width: 5),
           const Icon(Icons.chevron_right_rounded, color: Colors.white54),
           const SizedBox(width: 30),

@@ -29,7 +29,9 @@ class ControlTile extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(9),
             border: Border.all(
-              color: active ? scheme.primary : scheme.outlineVariant,
+              color: active
+                  ? scheme.primary.withValues(alpha: 0.55)
+                  : scheme.outlineVariant,
             ),
           ),
           child: Column(
@@ -38,8 +40,8 @@ class ControlTile extends StatelessWidget {
               Icon(
                 icon,
                 color: active
-                  ? scheme.primary
-                  : scheme.onSurfaceVariant,
+                    ? scheme.onPrimaryContainer
+                    : scheme.onSurfaceVariant,
               ),
               const SizedBox(height: 8),
               Text(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_colors.dart';
 
 class SettingsContent extends StatefulWidget {
   const SettingsContent({super.key, required this.title});
@@ -22,15 +23,16 @@ class _SettingsContentState extends State<SettingsContent> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(widget.title, style: const TextStyle(
-            fontSize: 22, fontWeight: FontWeight.w700,
-          )),
+          Text(widget.title,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+              )),
           const SizedBox(height: 18),
           SegmentedControl(
             labels: const ['Off', 'Parking', 'On', 'Auto'],
             selected: headlights ? 3 : 0,
-            onTap: (index) =>
-                setState(() => headlights = index != 0),
+            onTap: (index) => setState(() => headlights = index != 0),
           ),
           const SizedBox(height: 18),
           GridView.count(
@@ -45,8 +47,7 @@ class _SettingsContentState extends State<SettingsContent> {
                 icon: Icons.flip_camera_android_rounded,
                 label: 'Fold Mirrors',
                 active: mirrorsFolded,
-                onTap: () =>
-                    setState(() => mirrorsFolded = !mirrorsFolded),
+                onTap: () => setState(() => mirrorsFolded = !mirrorsFolded),
               ),
               const ControlTile(
                 icon: Icons.lock_outline_rounded,
@@ -68,8 +69,7 @@ class _SettingsContentState extends State<SettingsContent> {
                 icon: Icons.videocam_outlined,
                 label: 'Recording',
                 active: recording,
-                onTap: () =>
-                    setState(() => recording = !recording),
+                onTap: () => setState(() => recording = !recording),
               ),
               const ControlTile(
                 icon: Icons.local_car_wash_outlined,
@@ -98,15 +98,15 @@ class _SettingsContentState extends State<SettingsContent> {
               Expanded(
                 child: Slider(
                   value: brightness,
-                  onChanged: (value) =>
-                      setState(() => brightness = value),
+                  onChanged: (value) => setState(() => brightness = value),
                 ),
               ),
               FilledButton(
                 onPressed: () {},
                 child: const Padding(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 12,
+                    horizontal: 10,
+                    vertical: 12,
                   ),
                   child: Text('Auto'),
                 ),
@@ -148,18 +148,14 @@ class SegmentedControl extends StatelessWidget {
                 duration: const Duration(milliseconds: 180),
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 decoration: BoxDecoration(
-                  color: active
-                      ? const Color(0xFF246BFD)
-                      : const Color(0xFFECECEB),
+                  color: active ? AppColors.accentInk : const Color(0xFFECECEB),
                   borderRadius: BorderRadius.circular(7),
                 ),
                 child: Text(
                   labels[index],
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: active
-                        ? Colors.white
-                        : const Color(0xFF5F6265),
+                    color: active ? AppColors.accent : const Color(0xFF5F6265),
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -189,7 +185,7 @@ class ControlTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: active ? const Color(0xFFE7EEFF) : Colors.white,
+      color: active ? AppColors.accent : Colors.white,
       borderRadius: BorderRadius.circular(9),
       child: InkWell(
         onTap: onTap,
@@ -199,7 +195,7 @@ class ControlTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(9),
             border: Border.all(
               color: active
-                  ? const Color(0xFF246BFD)
+                  ? AppColors.accentInk.withValues(alpha: 0.55)
                   : const Color(0xFFE3E3E1),
             ),
           ),
@@ -208,16 +204,15 @@ class ControlTile extends StatelessWidget {
             children: [
               Icon(
                 icon,
-                color: active
-                    ? const Color(0xFF246BFD)
-                    : const Color(0xFF55585B),
+                color: active ? AppColors.accentInk : const Color(0xFF55585B),
               ),
               const SizedBox(height: 8),
               Text(
                 label,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  fontSize: 12, fontWeight: FontWeight.w600,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],

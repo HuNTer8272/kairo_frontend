@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_colors.dart';
 import '../../models/setting_item.dart';
 
 class SettingsSidebar extends StatelessWidget {
@@ -27,9 +28,7 @@ class SettingsSidebar extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.only(bottom: 4),
             child: Material(
-              color: selected
-                  ? const Color(0xFFE7E7E5)
-                  : Colors.transparent,
+              color: selected ? AppColors.accent : Colors.transparent,
               borderRadius: BorderRadius.circular(7),
               child: ListTile(
                 dense: true,

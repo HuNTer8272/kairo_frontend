@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 class VideoScreen extends StatelessWidget {
   const VideoScreen({super.key});
@@ -45,7 +46,7 @@ class VideoScreen extends StatelessWidget {
                   child: const Icon(
                     Icons.movie_rounded,
                     size: 42,
-                    color: Color(0xFF246BFD),
+                    color: AppColors.accentInk,
                   ),
                 ),
                 const SizedBox(height: 24),

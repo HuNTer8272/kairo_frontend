@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import '../../theme/app_colors.dart';
 
 import '../vehicle_model_view.dart';
 
@@ -40,19 +41,25 @@ class VehicleHomeView extends StatelessWidget {
               ),
               if (!settingsOpen) ...[
                 Positioned(
-                  left: w * .33, top: h * .37,
+                  left: w * .33,
+                  top: h * .37,
                   child: const VehicleActionLabel(
-                    title: 'Open', subtitle: 'Frunk',
+                    title: 'Open',
+                    subtitle: 'Frunk',
                   ),
                 ),
                 Positioned(
-                  right: w * .23, top: h * .33,
+                  right: w * .23,
+                  top: h * .33,
                   child: const VehicleActionLabel(
-                    title: 'Trunk', subtitle: 'Open', alignRight: true,
+                    title: 'Trunk',
+                    subtitle: 'Open',
+                    alignRight: true,
                   ),
                 ),
                 Positioned(
-                  left: w * .50, top: h * .20,
+                  left: w * .50,
+                  top: h * .20,
                   child: const Column(
                     children: [
                       Icon(Icons.lock_open_rounded, size: 25),
@@ -60,7 +67,8 @@ class VehicleHomeView extends StatelessWidget {
                       SizedBox(
                         height: 68,
                         child: VerticalDivider(
-                          width: 1, thickness: 1,
+                          width: 1,
+                          thickness: 1,
                           color: Color(0xFFBFC2C5),
                         ),
                       ),
@@ -68,12 +76,16 @@ class VehicleHomeView extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  left: w * .29, right: w * .18, bottom: h * .03,
+                  left: w * .29,
+                  right: w * .18,
+                  bottom: h * .03,
                   child: const HomeCards(),
                 ),
               ] else
                 const Positioned(
-                  left: 18, right: 18, bottom: 18,
+                  left: 18,
+                  right: 18,
+                  bottom: 18,
                   child: TyrePressureCard(),
                 ),
               Positioned(
@@ -85,14 +97,16 @@ class VehicleHomeView extends StatelessWidget {
                     onTap: onOpenSettings,
                     borderRadius: BorderRadius.circular(18),
                     child: Ink(
-                      width: 54, height: 54,
+                      width: 54,
+                      height: 54,
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: .82),
                         borderRadius: BorderRadius.circular(18),
                         border: Border.all(color: const Color(0xFFE1E1E1)),
                         boxShadow: const [
                           BoxShadow(
-                            blurRadius: 16, offset: Offset(0, 6),
+                            blurRadius: 16,
+                            offset: Offset(0, 6),
                             color: Color(0x14000000),
                           ),
                         ],
@@ -119,14 +133,13 @@ class VehicleStatusRail extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Column(
       children: [
-        Icon(Icons.light_mode_rounded, color: Color(0xFF40B987)),
+        Icon(Icons.light_mode_rounded, color: AppColors.accentInk),
         SizedBox(height: 18),
         Icon(Icons.lightbulb_outline, color: Color(0xFF929699)),
         SizedBox(height: 18),
-        Icon(Icons.light_mode_rounded, color: Color(0xFF40B987)),
+        Icon(Icons.light_mode_rounded, color: AppColors.accentInk),
         SizedBox(height: 18),
-        Icon(Icons.airline_seat_recline_normal_rounded,
-            color: Color(0xFFCE293A)),
+        Icon(Icons.airline_seat_recline_normal_rounded, color: AppColors.alert),
       ],
     );
   }
@@ -155,7 +168,9 @@ class VehicleActionLabel extends StatelessWidget {
         Text(
           '$title\n$subtitle',
           style: const TextStyle(
-            fontSize: 12, height: 1.1, fontWeight: FontWeight.w600,
+            fontSize: 12,
+            height: 1.1,
+            fontWeight: FontWeight.w600,
             color: Color(0xFF686A6D),
           ),
         ),
@@ -194,8 +209,8 @@ class MusicCard extends StatelessWidget {
               backgroundColor: Color(0xFF2E2B32),
               child: Icon(Icons.music_note_rounded, color: Colors.white),
             ),
-            title: Text('Vampire',
-                style: TextStyle(fontWeight: FontWeight.w700)),
+            title:
+                Text('Vampire', style: TextStyle(fontWeight: FontWeight.w700)),
             subtitle: Text('Olivia Rodrigo'),
           ),
           const Divider(height: 1),
@@ -276,7 +291,8 @@ class GlassCard extends StatelessWidget {
             border: Border.all(color: const Color(0xFFD9D9D9)),
             boxShadow: const [
               BoxShadow(
-                blurRadius: 20, offset: Offset(0, 10),
+                blurRadius: 20,
+                offset: Offset(0, 10),
                 color: Color(0x10000000),
               ),
             ],
@@ -310,13 +326,11 @@ class TyrePressureCard extends StatelessWidget {
           ),
           Column(
             children: [
-              Text('42 psi',
-                  style: TextStyle(fontWeight: FontWeight.w700)),
+              Text('42 psi', style: TextStyle(fontWeight: FontWeight.w700)),
               SizedBox(height: 8),
               Icon(Icons.directions_car_filled_rounded, size: 45),
               SizedBox(height: 8),
-              Text('41 psi',
-                  style: TextStyle(fontWeight: FontWeight.w700)),
+              Text('41 psi', style: TextStyle(fontWeight: FontWeight.w700)),
             ],
           ),
         ],
@@ -324,4 +338,3 @@ class TyrePressureCard extends StatelessWidget {
     );
   }
 }
-
