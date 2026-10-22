@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../features/validation/validation_settings.dart';
 import '../models/setting_item.dart';
+import '../services/apollo/apollo_service.dart';
+import 'apollo/autopilot_settings.dart';
+import 'apollo/vehicle_controls_settings.dart';
 import 'common/control_tile.dart';
 import 'common/segmented_row.dart';
 
@@ -15,6 +19,7 @@ class SettingsPanel extends StatelessWidget {
     required this.onClose,
     required this.isDarkMode,
     required this.onThemeChanged,
+    required this.apollo,
   });
 
   final List<SettingItem> settings;
@@ -23,6 +28,7 @@ class SettingsPanel extends StatelessWidget {
   final VoidCallback onClose;
   final bool isDarkMode;
   final ValueChanged<bool> onThemeChanged;
+  final ApolloService apollo;
 
   @override
   Widget build(BuildContext context) {
@@ -115,12 +121,29 @@ class SettingsPanel extends StatelessWidget {
                 Expanded(
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 220),
-                    child: _ControlContent(
-                      key: ValueKey(selectedIndex),
-                      title: settings[selectedIndex].label,
-                      isDarkMode: isDarkMode,
-                      onThemeChanged: onThemeChanged,
-                    ),
+                    child: settings[selectedIndex].label == 'Autopilot'
+                        ? AutopilotSettings(
+                            key: ValueKey(selectedIndex),
+                            apollo: apollo,
+                          )
+                        : settings[selectedIndex].label == 'Validation'
+                        ? ValidationSettings(
+                            key: ValueKey(selectedIndex),
+                            apollo: apollo,
+                          )
+                        : VehicleControlsSettings.categories
+                                .contains(settings[selectedIndex].label)
+                            ? VehicleControlsSettings(
+                                key: ValueKey(selectedIndex),
+                                apollo: apollo,
+                                category: settings[selectedIndex].label,
+                              )
+                            : _ControlContent(
+                                key: ValueKey(selectedIndex),
+                                title: settings[selectedIndex].label,
+                                isDarkMode: isDarkMode,
+                                onThemeChanged: onThemeChanged,
+                              ),
                   ),
                 ),
               ],

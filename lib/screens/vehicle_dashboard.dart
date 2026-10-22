@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../data/dock_items.dart';
 import '../data/settings_data.dart';
+import '../services/apollo/apollo_service.dart';
 import '../services/bluetooth/bluetooth_service.dart';
+import '../services/navigation/navigation_launcher.dart';
+import '../services/navigation/recent_destinations_service.dart';
+import '../services/navigation/saved_places_service.dart';
 import '../services/spotify/spotify_service.dart';
 import '../widgets/bottom_dock.dart';
 import '../widgets/settings_panel.dart';
@@ -51,20 +55,74 @@ class _VehicleDashboardState extends State<VehicleDashboard> {
   /// Owned here so BLE connections survive leaving the Bluetooth page.
   final BluetoothService _bluetooth = BluetoothService();
 
+  /// Owned here so saved places/recents survive leaving the map page.
+  final SavedPlacesService _places = SavedPlacesService();
+  final RecentDestinationsService _recents = RecentDestinationsService();
+  final NavigationLauncher _navLauncher = const NavigationLauncher();
+
+  /// Link to Apollo/Dreamview through the KAIRO gateway; owned here so the
+  /// live connection survives page changes.
+  final ApolloService _apollo = ApolloService();
+
   int get _appsIndex => kDockItems.length - 1;
   int get _musicIndex => kDockItems.indexWhere((item) => item.label == 'Music');
+  int get _bluetoothIndex =>
+      kDockItems.indexWhere((item) => item.label == 'Bluetooth');
 
   @override
   void initState() {
     super.initState();
     _spotify.init();
+    _places.load();
+    _recents.load();
+    _apollo.init();
   }
 
   @override
   void dispose() {
     _spotify.dispose();
     _bluetooth.dispose();
+    _places.dispose();
+    _recents.dispose();
+    _apollo.dispose();
     super.dispose();
+  }
+
+  /// Home/Work quick actions on the dashboard: if the place has a saved
+  /// address, hand it straight to the device's maps app. Otherwise open
+  /// the navigation screen so the driver can set it from there.
+  ///
+  /// While Apollo is live, Home/Work are points on its HD map instead: the
+  /// car drives there itself, and the map opens to show the trip.
+  Future<void> _quickNavigate(String placeId) async {
+    if (_apollo.isLive) {
+      final place = _apollo.state!.places[placeId];
+      setState(() => navigationOpen = true);
+      if (place != null) {
+        final error = await _apollo.goToPlace(place);
+        if (error != null && mounted) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(error)));
+        }
+      }
+      return;
+    }
+    final address = _places.addressFor(placeId);
+    if (address == null) {
+      setState(() => navigationOpen = true);
+      return;
+    }
+    await _navLauncher.launch(address);
+  }
+
+  /// Settings sidebar, opened on the Autopilot page.
+  void _openAutopilotSettings() {
+    setState(() {
+      navigationOpen = false;
+      settingsOpen = true;
+      selectedSetting =
+          kSettings.indexWhere((item) => item.label == 'Autopilot');
+    });
   }
 
   void _onDockSelected(int index) {
@@ -105,7 +163,10 @@ class _VehicleDashboardState extends State<VehicleDashboard> {
   Widget _screenForIndex(int index) {
     switch (index) {
       case 1:
-        return const PhoneScreen();
+        return PhoneScreen(
+          bluetooth: _bluetooth,
+          onOpenBluetooth: () => _onDockSelected(_bluetoothIndex),
+        );
       // case 2:
       //   return const VoiceScreen();
       case 2:
@@ -136,11 +197,15 @@ class _VehicleDashboardState extends State<VehicleDashboard> {
           child: VehiclePanel(
             compact: settingsOpen,
             onOpenSettings: () => setState(() => settingsOpen = true),
-            onNavigate: () => setState(() => navigationOpen = true),
+            onOpenNavigation: () => setState(() => navigationOpen = true),
+            onNavigateHome: () => _quickNavigate('home'),
+            onNavigateWork: () => _quickNavigate('work'),
             spotify: _spotify,
             // Same path as the dock's music icon, so the dock highlight and
             // back/forward history stay consistent.
             onOpenMusic: () => _onDockSelected(_musicIndex),
+            apollo: _apollo,
+            onOpenAutopilotSettings: _openAutopilotSettings,
           ),
         ),
         AnimatedPositioned(
@@ -157,6 +222,7 @@ class _VehicleDashboardState extends State<VehicleDashboard> {
             onClose: () => setState(() => settingsOpen = false),
             isDarkMode: widget.isDarkMode,
             onThemeChanged: widget.onThemeChanged,
+            apollo: _apollo,
           ),
         ),
       ],
@@ -196,7 +262,12 @@ class _VehicleDashboardState extends State<VehicleDashboard> {
   Widget _buildBody(double width) {
     if (navigationOpen) {
       return NavigationScreen(
-          onClose: () => setState(() => navigationOpen = false));
+        onClose: () => setState(() => navigationOpen = false),
+        places: _places,
+        recents: _recents,
+        launcher: _navLauncher,
+        apollo: _apollo,
+      );
     }
     if (selectedDockItem == 0 || selectedDockItem == _appsIndex) {
       return _buildVehicleAndSettings(width);
@@ -245,6 +316,8 @@ class _VehicleDashboardState extends State<VehicleDashboard> {
                     onProfileTap: () {},
                     isDarkMode: widget.isDarkMode,
                     onThemeChanged: widget.onThemeChanged,
+                    apollo: _apollo,
+                    onAutopilotTap: _openAutopilotSettings,
                   ),
                 ),
                 Positioned(

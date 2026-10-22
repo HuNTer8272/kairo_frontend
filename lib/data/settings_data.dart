@@ -8,6 +8,7 @@ const List<SettingItem> kSettings = [
   SettingItem(Icons.speed_rounded, 'Dynamics'),
   SettingItem(Icons.bolt_rounded, 'Charging'),
   SettingItem(Icons.route_rounded, 'Autopilot'),
+  SettingItem(Icons.fact_check_outlined, 'Validation'),
   SettingItem(Icons.lock_outline_rounded, 'Locks'),
   SettingItem(Icons.light_mode_outlined, 'Lights'),
   SettingItem(Icons.airline_seat_recline_normal_rounded, 'Seats'),

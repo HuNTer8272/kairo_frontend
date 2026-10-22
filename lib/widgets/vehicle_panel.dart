@@ -2,8 +2,10 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../services/apollo/apollo_service.dart';
 import '../services/spotify/spotify_service.dart';
-import '../theme/app_colors.dart';
+import 'apollo/autopilot_card.dart';
+import 'apollo/body_controls.dart';
 import 'media/spotify_mini_player.dart';
 import 'vehicle_model_view.dart';
 
@@ -15,16 +17,30 @@ class VehiclePanel extends StatelessWidget {
     super.key,
     required this.compact,
     required this.onOpenSettings,
-    required this.onNavigate,
+    required this.onOpenNavigation,
+    required this.onNavigateHome,
+    required this.onNavigateWork,
     required this.spotify,
     required this.onOpenMusic,
+    required this.apollo,
+    required this.onOpenAutopilotSettings,
   });
 
   final bool compact;
   final VoidCallback onOpenSettings;
-  final VoidCallback onNavigate;
+
+  /// Opens the full navigation screen (search bar tap, map icon, etc).
+  final VoidCallback onOpenNavigation;
+
+  /// Quick actions from the dashboard's Navigate card: launch straight to
+  /// the saved Home/Work address, or open the navigation screen to set one
+  /// if it isn't saved yet.
+  final VoidCallback onNavigateHome;
+  final VoidCallback onNavigateWork;
   final SpotifyService spotify;
   final VoidCallback onOpenMusic;
+  final ApolloService apollo;
+  final VoidCallback onOpenAutopilotSettings;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +57,7 @@ class VehiclePanel extends StatelessWidget {
               Positioned(
                 left: compact ? 18 : 22,
                 top: compact ? h * 0.14 : h * 0.13,
-                child: _VerticalStatusBar(compact: compact),
+                child: BodyStatusIcons(apollo: apollo, compact: compact),
               ),
               AnimatedPositioned(
                 duration: const Duration(milliseconds: 520),
@@ -59,37 +75,35 @@ class VehiclePanel extends StatelessWidget {
                 Positioned(
                   left: w * 0.33,
                   top: h * 0.37,
-                  child: const _VehicleActionLabel(
-                    title: 'Open',
-                    subtitle: 'Frunk',
+                  child: ClosureLabel(
+                    apollo: apollo,
+                    field: 'frunk_open',
+                    name: 'Frunk',
                     alignRight: false,
                   ),
                 ),
                 Positioned(
                   right: w * 0.23,
                   top: h * 0.33,
-                  child: const _VehicleActionLabel(
-                    title: 'Trunk',
-                    subtitle: 'Open',
+                  child: ClosureLabel(
+                    apollo: apollo,
+                    field: 'trunk_open',
+                    name: 'Trunk',
                     alignRight: true,
                   ),
                 ),
                 Positioned(
-                  left: w * 0.50,
-                  top: h * 0.20,
-                  child: const Column(
-                    children: [
-                      Icon(Icons.lock_open_rounded, size: 25),
-                      SizedBox(height: 4),
-                      SizedBox(
-                        height: 68,
-                        child: VerticalDivider(
-                          width: 1,
-                          thickness: 1,
-                          color: Color(0xFFBFC2C5),
-                        ),
-                      ),
-                    ],
+                  left: w * 0.50 - 20,
+                  top: h * 0.18,
+                  child: LockToggle(apollo: apollo),
+                ),
+                Positioned(
+                  right: 24,
+                  top: h * 0.12,
+                  child: AutopilotCard(
+                    apollo: apollo,
+                    onOpenNavigation: onOpenNavigation,
+                    onOpenSettings: onOpenAutopilotSettings,
                   ),
                 ),
                 Positioned(
@@ -97,7 +111,9 @@ class VehiclePanel extends StatelessWidget {
                   right: w * 0.18,
                   bottom: h * 0.03,
                   child: _HomeCards(
-                    onNavigate: onNavigate,
+                    onOpenNavigation: onOpenNavigation,
+                    onNavigateHome: onNavigateHome,
+                    onNavigateWork: onNavigateWork,
                     spotify: spotify,
                     onOpenMusic: onOpenMusic,
                   ),
@@ -155,77 +171,18 @@ class VehiclePanel extends StatelessWidget {
   }
 }
 
-class _VerticalStatusBar extends StatelessWidget {
-  const _VerticalStatusBar({required this.compact});
-
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Column(
-      children: [
-        Icon(Icons.light_mode_rounded, color: scheme.primary),
-        const SizedBox(height: 18),
-        Icon(
-          compact ? Icons.airline_seat_recline_normal : Icons.lightbulb_outline,
-          color: const Color(0xFF929699),
-        ),
-        // const SizedBox(height: 18),
-        // Icon(Icons.light_mode_rounded, color: scheme.primary),
-        const SizedBox(height: 18),
-        const Icon(Icons.airline_seat_recline_normal_rounded,
-            color: AppColors.alert),
-      ],
-    );
-  }
-}
-
-class _VehicleActionLabel extends StatelessWidget {
-  const _VehicleActionLabel({
-    required this.title,
-    required this.subtitle,
-    required this.alignRight,
-  });
-
-  final String title;
-  final String subtitle;
-  final bool alignRight;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      textDirection: alignRight ? TextDirection.rtl : TextDirection.ltr,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 1,
-          height: 60,
-          color: const Color(0xFFBFC2C5),
-        ),
-        const SizedBox(width: 7),
-        Text(
-          '$title\n$subtitle',
-          style: const TextStyle(
-            fontSize: 12,
-            height: 1.1,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF686A6D),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _HomeCards extends StatelessWidget {
   const _HomeCards({
-    required this.onNavigate,
+    required this.onOpenNavigation,
+    required this.onNavigateHome,
+    required this.onNavigateWork,
     required this.spotify,
     required this.onOpenMusic,
   });
 
-  final VoidCallback onNavigate;
+  final VoidCallback onOpenNavigation;
+  final VoidCallback onNavigateHome;
+  final VoidCallback onNavigateWork;
   final SpotifyService spotify;
   final VoidCallback onOpenMusic;
 
@@ -245,10 +202,11 @@ class _HomeCards extends StatelessWidget {
           child: _GlassCard(
             child: Column(
               children: [
-                const ListTile(
+                ListTile(
                   dense: true,
-                  leading: Icon(Icons.search_rounded),
-                  title: Text('Navigate'),
+                  leading: const Icon(Icons.search_rounded),
+                  title: const Text('Navigate'),
+                  onTap: onOpenNavigation,
                 ),
                 const Divider(height: 1),
                 Expanded(
@@ -256,7 +214,7 @@ class _HomeCards extends StatelessWidget {
                     children: [
                       Expanded(
                         child: TextButton.icon(
-                          onPressed: onNavigate,
+                          onPressed: onNavigateHome,
                           icon: const Icon(Icons.home_rounded),
                           label: const Text('Home'),
                         ),
@@ -264,7 +222,7 @@ class _HomeCards extends StatelessWidget {
                       const VerticalDivider(width: 1),
                       Expanded(
                         child: TextButton.icon(
-                          onPressed: () {},
+                          onPressed: onNavigateWork,
                           icon: const Icon(Icons.work_rounded),
                           label: const Text('Work'),
                         ),
